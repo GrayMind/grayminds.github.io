@@ -19,10 +19,14 @@
         height: 100%;
         width: 100%;
     }
+    #snow {
+        height: 100%;
+        width: 100%;
+    }
 </style>
 
 <body>
-    <div id="snowBackground"></div>
+    <div id="snow"></div>
 </body>
 
 <script>
@@ -35,7 +39,7 @@
     renderer.setSize(width, height);
     // 设置背景颜色
     renderer.setClearColor('rgb(22,33,82)', 1.0);
-    let element = document.getElementById('snowBackground');
+    let element = document.getElementById('snow');
     element.appendChild(renderer.domElement);
 
     // 场景
@@ -72,7 +76,6 @@
             geom.vertices.push(v);
         }
 
-        // 点云
         points = new THREE.Points(geom, material);
         scene.add(points);
         renderer.render(scene, camera);
@@ -108,6 +111,7 @@
 
     // 创建运动方向
     function createVelocity() {
+        // 默认向下
         let velocity = new THREE.Vector3(0, -0.4, 0);
         velocity.rotateX(randomRange(-45, 45));
         velocity.rotateY(randomRange(0, 360));
