@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animated Mesh Line</title>
+  <script src="../lib/three.js"></script>
+  <script src="../lib/THREE.MeshLine.js"></script>
+  <!-- <script src="../lib/OrbitControls.js"></script> -->
+  <link rel="stylesheet" href="../css/index.css">
+</head>
+
+<body>
+</body>
+
+<script>
+  var w = window.innerWidth;
+  var h = window.innerHeight;
+
+  var scene = new THREE.Scene();
+
+  var camera = new THREE.PerspectiveCamera(50, w / h, 1, 1000);
+  camera.position.set(0, 0, 100);
+  camera.lookAt(scene.position);
+  scene.add(camera);
+
+  var segmentLength = 1;
+  var pointsNum = 50;
+  var points = []
+  for (let index = 0; index < pointsNum; index++) {
+    points.push(index * segmentLength, 0, 0);
+  }
+  var originLine = addThreeJSLine(scene);
+  var lineMesh = addLine(points, scene);
+  var lineMesh2 = addLine2(points, scene);
+  var lineMesh3 = addCurveLine(scene);
+
+  var renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    alpha: true
+  });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  render();
+
+  function render() {
+    lineMesh2.material.dashOffset -= 0.01;
+    lineMesh3.material.dashOffset -= 0.01;
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(render);
+  }
+
+  // 直线1
+  function addLine(points, scene) {
+    var points2 = JSON.parse(JSON.stringify(points));
+    var line2 = new MeshLine();
+    line2.setGeometry(points2);
+    var material2 = new MeshLineMaterial({
+      color: new THREE.Color(0xed6a5a),
+      opacity: 1,
+      lineWidth: 1,
+    });
+    var lineMesh2 = new THREE.Mesh(line2.geometry, material2);
+    lineMesh2.position.y = 30;
+    scene.add(lineMesh2);
+
+    return lineMesh2;
+  }
+
+  // 带 dash 的直线
+  function addLine2(points, scene) {
+    var line = new MeshLine();
+    line.setGeometry(points);
+
+    var material = new MeshLineMaterial({
+      color: new THREE.Color(0xed6a5a),
+      opacity: 1,
+      depthWrite: false,
+
+      lineWidth: 1,
+
+      dashArray: 2, // 0 ~ 1。0, 超过 1 的话
+      dashOffset: 0,
+      dashRatio: 0.75, // 空白长度/显示的长度 比例。其中每段空白的长度为 线长 * dashArray * dashRatio
+    });
+    var lineMesh = new THREE.Mesh(line.geometry, material);
+    scene.add(lineMesh);
+    return lineMesh;
+  }
+
+  // 添加曲线
+  function addCurveLine(scene) {
+
+    const segmentLength = 10;
+    const nbrOfPoints = 5;
+    const points = [];
+    const turbulence = 5;
+    for (let i = 0; i < nbrOfPoints; i++) {
+      // ! We have to wrapped points into a THREE.Vector3 this time
+      points.push(new THREE.Vector3(
+        i * segmentLength,
+        (Math.random() * (turbulence * 2)) - turbulence,
+        (Math.random() * (turbulence * 2)) - turbulence,
+      ));
+    }
+    const linePoints = new THREE.Geometry().setFromPoints(new THREE.SplineCurve(points).getPoints(50));
+    const line = new MeshLine();
+    line.setGeometry(linePoints);
+
+    var material = new MeshLineMaterial({
+      color: new THREE.Color(0xed6a5a),
+      opacity: 1,
+      linewidth: 1,
+      depthWrite: false,
+
+      dashArray: 2,
+      dashOffset: 0,
+      dashRatio: 0.75,
+    });
+    var lineMesh = new THREE.Mesh(line.geometry, material);
+    lineMesh.position.y = -30;
+    scene.add(lineMesh);
+    return lineMesh;
+  }
+
+  // Threejs中的line
+  function addThreeJSLine(scene) {
+    var points = [];
+    points.push(new THREE.Vector3(0, 0, 0));
+    points.push(new THREE.Vector3(50, 0, 0));
+
+    var material = new THREE.LineBasicMaterial({
+      color: 0x0000ff,
+      linewidth: 10000.0
+    });
+    var geometry = new THREE.BufferGeometry().setFromPoints(points);
+    var line = new THREE.Line(geometry, material);
+    line.position.y = 40;
+    scene.add(line)
+    return line;
+  }
+</script>
+
+</html>
